@@ -1,0 +1,27 @@
+{
+  "name": "grunt-aws-cloudformation",
+  "version": "0.0.1",
+  "description": "A grunt task to perform AWS CloudFormation operations",
+  "homepage": "https://github.com/andyneville/grunt-aws-cloudformation",
+  "author": {
+    "name": "Andy Neville",
+    "email": "andyneville@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/andyneville/grunt-aws-cloudformation.git"
+  },
+  "bugs": {
+    "url": "https://github.com/andyneville/grunt-aws-cloudformation/issues"
+  },
+  "keywords": [
+    "aws",
+    "cloudformation",
+    "grunt",
+    "task"
+  ],
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.6.12"
+  }
+}
