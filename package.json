@@ -1,6 +1,6 @@
 {
   "name": "grunt-aws-cloudformation",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A grunt task to perform AWS CloudFormation operations",
   "homepage": "https://github.com/andyneville/grunt-aws-cloudformation",
   "author": {
@@ -22,6 +22,7 @@
   ],
   "license": "ISC",
   "dependencies": {
-    "aws-sdk": "^2.6.12"
+    "aws-sdk": "^2.6.12",
+    "lodash": "^4.16.4"
   }
 }
