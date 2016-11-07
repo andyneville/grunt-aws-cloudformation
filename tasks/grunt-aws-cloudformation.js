@@ -78,7 +78,7 @@ module.exports = function(grunt) {
 				if (_.isEmpty(data.stackName)) {
 					grunt.warn("Action update-stack requires option: stackName");
 				}
-				let updateParams = {
+				var updateParams = {
 					StackName: data.stackName,
 					Capabilities: data.capabilities
 				};
@@ -115,8 +115,12 @@ module.exports = function(grunt) {
 					NextToken: data.nextToken
 				};
 				cloudformation.describeStacks(statusParams, function(err, data) {
-					if (err) grunt.warn(err, err.stack);
-					else     grunt.log.writeln("Stack status:\n" + JSON.stringify(data, null, 1));
+					if (err) {
+						grunt.warn(err, err.stack);
+					} else {
+						grunt.log.writeln("Stack status:\n" + JSON.stringify(data, null, 1));
+						done();
+					}
 				});
 				break;
 			default:
