@@ -74,6 +74,51 @@ module.exports = function(grunt) {
 					}
 				});
 				break;
+			case "update-stack":
+				if (_.isEmpty(data.stackName)) {
+					grunt.warn("Action update-stack requires option: stackName");
+				}
+				let updateParams = {
+					StackName: data.stackName,
+					Capabilities: data.capabilities
+				};
+				if (!_.isEmpty(data.templateBody)) {
+					updateParams.TemplateBody = data.templateBody;
+				} else if (!_.isEmpty(data.templateUrl)) {
+					updateParams.TemplateURL = data.templateUrl;
+				} else {
+					grunt.warn("Action update-stack requires either a templateBody or templateUrl option");
+				}
+				if (data.params) {
+					updateParams.Parameters = [];
+					_.forIn(data.params, function(value, key){
+						updateParams.Parameters.push({
+							ParameterKey: key,
+							ParameterValue: value
+						});
+					});
+				}
+
+				grunt.log.writeln("Updating CloudFoundation stack " + updateParams.StackName + "...");
+				cloudformation.updateStack(updateParams, function(err, data){
+					if (err) {
+						grunt.warn("Update stack failed - " + err);
+					} else {
+						grunt.log.writeln("Update stack succeeded:\n" + JSON.stringify(data,null,1));
+						done();
+					}
+				});
+				break;
+			case "stack-status":
+				var statusParams = {
+					StackName: data.stackName,
+					NextToken: data.nextToken
+				};
+				cloudformation.describeStacks(statusParams, function(err, data) {
+					if (err) grunt.warn(err, err.stack);
+					else     grunt.log.writeln("Stack status:\n" + JSON.stringify(data, null, 1));
+				});
+				break;
 			default:
 				grunt.fatal("Unsupported action \"" + data.action + "\"");
 				break;

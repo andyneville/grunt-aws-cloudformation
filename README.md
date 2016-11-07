@@ -27,7 +27,8 @@ grunt.loadNpmTasks('grunt-aws-cloudformation');
 
 This plugin contains a single task called `cloudformation`. It can be used to perform the following actions:
 * create-stack - Creates a new CloudFormation stack
-
+* update-stack - Updates a existing CloudFormation stack
+* stack-status - Displays the status of CloudFormation stack(s)
 
 ### Authentication options
 
@@ -95,3 +96,61 @@ The URL to the template (e.g. on AWS S3) to be used to create the stack.
 Type: `Object`
 
 An object specifying parameter values for the template.
+
+##### options.capabilities
+Type: `String array`
+
+A list of values that you must specify before AWS CloudFormation can update certain stacks. 
+Some stack templates might include resources that can affect permissions in your AWS account, for example, by creating new AWS Identity and Access Management (IAM) users. 
+For those stacks, you must explicitly acknowledge their capabilities by specifying this parameter.
+The only valid values are CAPABILITY_IAM and CAPABILITY_NAMED_IAM.
+
+
+### Using the `update-stack` action
+
+Use the `update-stack` action to update a existing CloudFormation stack.
+
+##### options.stackName
+Type: `String`
+*Required*
+
+The name of the CloudFormation stack to be created.
+
+##### options.templateBody
+Type: `String`
+
+The body of the template to be used to create the stack. This can also be specified as a src file in standard Grunt format.
+
+##### options.templateUrl
+Type: `String`
+
+The URL to the template (e.g. on AWS S3) to be used to create the stack.
+
+##### options.params
+Type: `Object`
+
+An object specifying parameter values for the template.
+
+##### options.capabilities
+Type: `String array`
+
+A list of values that you must specify before AWS CloudFormation can update certain stacks. 
+Some stack templates might include resources that can affect permissions in your AWS account, for example, by creating new AWS Identity and Access Management (IAM) users. 
+For those stacks, you must explicitly acknowledge their capabilities by specifying this parameter.
+The only valid values are CAPABILITY_IAM and CAPABILITY_NAMED_IAM.
+
+
+### Using the `stack-status` action
+
+Use the `stack-status` action to get the current status information about your stack.
+Includes data like status message, last update time, parameters, output values etc.
+
+##### options.stackName
+Type: `String`
+
+The name of the CloudFormation stack to be created.
+
+##### options.nextToken
+Type: `String`
+
+A string that identifies the next page of stacks that you want to retrieve.
