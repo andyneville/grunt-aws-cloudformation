@@ -130,6 +130,7 @@ The URL to the template (e.g. on AWS S3) to be used to create the stack.
 Type: `Object`
 
 An object specifying parameter values for the template.
+String values passed as parameter value, true boolean passed as UsePreviousValue. 
 
 ##### options.capabilities
 Type: `String array`

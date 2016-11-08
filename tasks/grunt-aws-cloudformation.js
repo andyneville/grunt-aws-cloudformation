@@ -92,10 +92,17 @@ module.exports = function(grunt) {
 				if (data.params) {
 					updateParams.Parameters = [];
 					_.forIn(data.params, function(value, key){
-						updateParams.Parameters.push({
-							ParameterKey: key,
-							ParameterValue: value
-						});
+						if(key === true) {
+							updateParams.Parameters.push({
+								ParameterKey: key,
+								UsePreviousValue: value
+							});
+						} else {
+							updateParams.Parameters.push({
+								ParameterKey: key,
+								ParameterValue: value
+							});
+						}
 					});
 				}
 
