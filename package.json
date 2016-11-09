@@ -1,6 +1,6 @@
 {
   "name": "grunt-aws-cloudformation",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A grunt task to perform AWS CloudFormation operations",
   "homepage": "https://github.com/andyneville/grunt-aws-cloudformation",
   "author": {
