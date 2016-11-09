@@ -95,7 +95,7 @@ module.exports = function(grunt) {
 						if(value === true) {
 							updateParams.Parameters.push({
 								ParameterKey: key,
-								UsePreviousValue: value
+								UsePreviousValue: true
 							});
 						} else {
 							updateParams.Parameters.push({
