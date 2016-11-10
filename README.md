@@ -155,3 +155,13 @@ The name of the CloudFormation stack to be created.
 Type: `String`
 
 A string that identifies the next page of stacks that you want to retrieve.
+
+
+### Using the `delete-stack` action
+
+Use the `delete-stack` action to delete a stack and all associated resources.
+
+##### options.stackName
+Type: `String`
+
+The name of the CloudFormation stack.

@@ -130,6 +130,23 @@ module.exports = function(grunt) {
 					}
 				});
 				break;
+			case "delete-stack":
+				if (_.isEmpty(data.stackName)) {
+					grunt.warn("Action delete-stack requires option: stackName");
+				}
+				var deleteParams = {
+					StackName: data.stackName
+				};
+				grunt.log.writeln("Deleting CloudFoundation stack " + deleteParams.StackName + "...");
+				cloudformation.deleteStack(deleteParams, function(err, data){
+					if (err) {
+						grunt.warn("Delete stack failed - " + err);
+					} else {
+						grunt.log.writeln("Delete stack succeeded:\n" + JSON.stringify(data,null,1));
+					}
+					done(!err);
+				});
+				break;
 			default:
 				grunt.fatal("Unsupported action \"" + data.action + "\"");
 				break;
