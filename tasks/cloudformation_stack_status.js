@@ -9,9 +9,6 @@ module.exports = function(grunt) {
   grunt.registerMultiTask("cloudformation_stack_status",
     "Gets and prints status of cloudformation stack.",
     function() {
-
-      console.log("hej".anchor("www.hej.com"));
-
       var done = this.async();
       var options = this.options({
         accessKeyId: process.env.AWS_ACCESS_KEY_ID,
