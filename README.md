@@ -130,7 +130,7 @@ Can contain the following parameters:
 - cloudformationTemplate `boolean` - If true and templateUrl is set, the s3 file version will be concatenated to it. ("?versionId=ndgJNIUN877unHh89h")
 
 Example:
-```json
+```js
     cloudformation_deploy_stack: {
       options: {
         region: "eu-central-1",
@@ -183,7 +183,7 @@ Type: `Object`
 In update_stack the only difference is parameters that may have the "UsePreviousValue" boolean set to true instead of a value.
 
 Example:
-```json
+```js
     cloudformation_update_stack: {
       options: {
         region: "eu-central-1",
@@ -243,7 +243,7 @@ Required: `true`
 The name of the stack to be removed.
 
 Example:
-```json
+```js
     cloudformation_delete_stack: {
       options: {
         region: "eu-central-1"
@@ -271,7 +271,7 @@ Required: `true`
 The name of the stack.
 
 Example:
-```json
+```js
     cloudformation_stack_status: {
       options: {
         region: "eu-central-1"
