@@ -25,10 +25,11 @@ grunt.loadNpmTasks('grunt-aws-cloudformation');
 
 ### Overview
 
-This plugin contains a single task called `cloudformation`. It can be used to perform the following actions:
-* create-stack - Creates a new CloudFormation stack
-* update-stack - Updates a existing CloudFormation stack
-* stack-status - Displays the status of CloudFormation stack(s)
+This plugin is split over a number of multiTasks depending on what action you want to take, allowing you to set up multiple configurations for each one.
+* cloudformation_deploy_stack - Creates a new CloudFormation stack.
+* cloudformation_update_stack - Updates a existing CloudFormation stack.
+* cloudformation_delete_stack - Removes a single stack and all resources it created.
+* cloudformation_stack_status - Displays the status of CloudFormation stack.
 
 ### Authentication options
 
@@ -60,42 +61,54 @@ Type: `String`
 The profile in the `~/.aws/credentials` saved credentials to use.
 
 
-### Common options
+## Task: cloudformation_deploy_stack
 
-The following options are shared by all CloudFormation actions.
+Deploys a new cloudformation stack according to template file or string.
+Can also upload files to s3 and add their s3 versionId as Parameter to the template.
 
 ##### options.region
 Type: `String`
-*Required*
+Required: `true`
 
-The AWS region where the stack either already exists or will be created.
-
-
-
-### Using the `create-stack` action
-
-Use the `create-stack` action to create a new CloudFormation stack.
+The AWS region where the stack will be created.
 
 ##### options.stackName
 Type: `String`
-*Required*
+Required: `true`
 
 The name of the CloudFormation stack to be created.
 
 ##### options.templateBody
 Type: `String`
+Required: `templateBody || templateUrl || templatePath`
 
-The body of the template to be used to create the stack. This can also be specified as a src file in standard Grunt format.
+The body of the template to be used to create the stack.
+
+##### options.templatePath
+Type: `String`
+Required: `templateBody || templateUrl || templatePath`
+
+The path to a local file containing the template, contents will be added as string.
+(overwrites templateBody)
 
 ##### options.templateUrl
 Type: `String`
+Required: `templateBody || templateUrl || templatePath`
 
 The URL to the template (e.g. on AWS S3) to be used to create the stack.
 
-##### options.params
+##### options.parameters
 Type: `Object`
 
 An object specifying parameter values for the template.
+Example: `{ ParameterKey: 'stage', ParameterValue: 'dev' }`
+
+##### options.optionsParameters
+Type: `Object`
+
+A second object specifying parameter values for the template, will be concatenated upon the first.
+Used for adding task level parameters not to be overwritten by target level parameters.
+Example: `{ ParameterKey: 'source', ParameterValue: 'London' }`
 
 ##### options.capabilities
 Type: `String array`
@@ -105,63 +118,166 @@ Some stack templates might include resources that can affect permissions in your
 For those stacks, you must explicitly acknowledge their capabilities by specifying this parameter.
 The only valid values are CAPABILITY_IAM and CAPABILITY_NAMED_IAM.
 
+##### options.s3Files
+Type: `Object array`
 
-### Using the `update-stack` action
+Files that will be uploaded to S3 before deploying the stack, version may be added to parameters.
+Can contain the following parameters:
+- path `string` - required - Local path to the file, eg: "dist/getCustomer_latest.zip"
+- s3Key `string` - required - Key to be used for file on S3, can contain path to folder, eg: "functions/getCustomer.zip" 
+- s3Bucket `string` - required - Name of the bucket to put the file in on S3.
+- versionParam `string` - Name of the parameter top be created with the S3 file version and put into the create stack request.
+- cloudformationTemplate `boolean` - If true and templateUrl is set, the s3 file version will be concatenated to it. ("?versionId=ndgJNIUN877unHh89h")
 
-Use the `update-stack` action to update a existing CloudFormation stack.
+Example:
+```js
+    cloudformation_deploy_stack: {
+      options: {
+        region: "eu-central-1",
+        capabilities: ["CAPABILITY_IAM"],
+        optionsParameters: []
+      },
 
-##### options.stackName
-Type: `String`
-*Required*
+      mystack_dev: {
+        stackName: "myStack-dev",
+        parameters: [
+          {
+            ParameterKey: 'stage',
+            ParameterValue: 'dev'
+          }
+        ],
+        templateURL: "https://s3.eu-central-1.amazonaws.com/mystack-bucket/cloudformation.yml",
+        s3files: [
+          {
+            path: "cloudformation/cloudformation.yml",
+            s3Key: "cloudformation.yml",
+            s3Bucket: "mystack-bucket",
+            cloudformationTemplate: true
+          },
+          {
+            path: "dist/getCustomers_latest.zip",
+            s3Key: "functions/getCustomers.zip",
+            s3Bucket: "mystack-bucket",
+            versionParam: "getCustomersS3Version"
+          },
+          {
+            path: "dist/swagger.json",
+            s3Key: "swagger.json",
+            s3Bucket: "mystack-bucket",
+            versionParam: "swaggerS3Version"
+          }
+        ]
+      }
+    }
+```
 
-The name of the CloudFormation stack to be created.
+## Task: cloudformation_update_stack
 
-##### options.templateBody
-Type: `String`
+Updates a stack that is already deployed by applying a new or modified template.
+Uses the same options as create_stack except for parameters.
+To trigger changes in resources defined in other files (ie Lambda code) file name or version must be updated, use s3files with versionParam to achieve this.
 
-The body of the template to be used to create the stack. This can also be specified as a src file in standard Grunt format.
-
-##### options.templateUrl
-Type: `String`
-
-The URL to the template (e.g. on AWS S3) to be used to create the stack.
-
-##### options.params
+##### options.parameters
 Type: `Object`
 
-An object specifying parameter values for the template.
-String values passed as parameter value, true boolean passed as UsePreviousValue. 
+In update_stack the only difference is parameters that may have the "UsePreviousValue" boolean set to true instead of a value.
 
-##### options.capabilities
-Type: `String array`
+Example:
+```js
+    cloudformation_update_stack: {
+      options: {
+        region: "eu-central-1",
+        capabilities: ["CAPABILITY_IAM"],
+        optionsParameters: [
+          {
+            ParameterKey: 'stage',
+            UsePreviousValue: true
+          },
+          {
+            ParameterKey: 'getCustomersS3Version',
+            UsePreviousValue: true
+          },
+          {
+            ParameterKey: 'swaggerS3Version',
+            UsePreviousValue: true
+          }
+        ]
+      },
 
-A list of values that you must specify before AWS CloudFormation can update certain stacks. 
-Some stack templates might include resources that can affect permissions in your AWS account, for example, by creating new AWS Identity and Access Management (IAM) users. 
-For those stacks, you must explicitly acknowledge their capabilities by specifying this parameter.
-The only valid values are CAPABILITY_IAM and CAPABILITY_NAMED_IAM.
+      mystack_dev_lambda: {
+        stackName: "myStack-dev",
+        parameters: [],
+        templateURL: "https://s3.eu-central-1.amazonaws.com/mystack-bucket/cloudformation.yml",
+        s3files: [
+          {
+            path: "cloudformation/cloudformation.yml",
+            s3Key: "cloudformation.yml",
+            s3Bucket: "mystack-bucket",
+            cloudformationTemplate: true
+          },
+          {
+            path: "dist/getCustomers_latest.zip",
+            s3Key: "functions/getCustomers.zip",
+            s3Bucket: "mystack-bucket",
+            versionParam: "getCustomersS3Version"
+          }
+        ]
+      }
+    }
+```
 
+## Task: cloudformation_delete_stack
 
-### Using the `stack-status` action
+Deletes a single stack and all resources created by it.
 
-Use the `stack-status` action to get the current status information about your stack.
-Includes data like status message, last update time, parameters, output values etc.
+##### options.region
+Type: `string`
+Required: `true`
+
+The region the stack should be removed from.
 
 ##### options.stackName
-Type: `String`
+Type: `string`
+Required: `true`
 
-The name of the CloudFormation stack to be created.
+The name of the stack to be removed.
 
-##### options.nextToken
-Type: `String`
+Example:
+```js
+    cloudformation_delete_stack: {
+      options: {
+        region: "eu-central-1"
+      },
+      mystack_dev: {
+        stackName: "mystack-dev"
+      }
+    }
+```
 
-A string that identifies the next page of stacks that you want to retrieve.
+## Task: cloudformation_stack_status
 
+Prints the status, parameters, outputs, id and last updated date of a stack.
 
-### Using the `delete-stack` action
+##### options.region
+Type: `string`
+Required: `true`
 
-Use the `delete-stack` action to delete a stack and all associated resources.
+The region the stack is in.
 
 ##### options.stackName
-Type: `String`
+Type: `string`
+Required: `true`
 
-The name of the CloudFormation stack.
+The name of the stack.
+
+Example:
+```js
+    cloudformation_stack_status: {
+      options: {
+        region: "eu-central-1"
+      },
+      mystack_dev: {
+        stackName: "mystack-dev"
+      }
+    }
+```
