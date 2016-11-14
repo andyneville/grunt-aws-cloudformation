@@ -7,7 +7,7 @@ const s3utils = require("../utils/s3utils");
 
 module.exports = function(grunt) {
 
-  grunt.registerMultiTask("cloudformation_redeploy_files",
+  grunt.registerMultiTask("cloudformation_update_stack",
     "uploads files to S3 and updates stack with file versions as parameters.",
     function() {
       var done = this.async();

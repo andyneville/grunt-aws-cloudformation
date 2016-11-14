@@ -66,14 +66,8 @@ module.exports = function(grunt) {
     if (_.isEmpty(data.stackName)) {
       grunt.warn("Function requires option: stackName");
     }
-    if (_.isEmpty(data.region)) {
-      grunt.warn("Function requires option: region");
-    }
     if (_.isEmpty(data.templateBody) && _.isEmpty(data.templateURL)) {
       grunt.warn("Function requires option: templatePath, templateURL or templateBody");
-    }
-    if (_.isEmpty(data.s3files)) {
-      grunt.warn("Function requires option: s3files");
     }
     callback(null);
   }
@@ -91,7 +85,7 @@ module.exports = function(grunt) {
             ParameterValue: s3data.VersionId
           });
         }
-        if(file.cfTemplate && data.templateURL && s3data.VersionId) {
+        if(file.cloudformationTemplate && data.templateURL && s3data.VersionId) {
           data.templateURL += "?versionId=" + s3data.VersionId;
         }
         callback(null);
