@@ -1,0 +1,67 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Test CloudFormation template for grunt-aws-cloudformation project using DynamoDB",
+  "Parameters": {
+    "TableName": {
+      "Description": "The name of the DynamoDB table created by this template",
+      "Type": "String",
+      "Default": "test-grunt-aws-cloudformation"
+    },
+    "ProvisionedThroughput": {
+      "Description": "The provisioned read/write throughput of the table created by this template",
+      "Type": "String",
+      "Default": "5"
+    }
+  },
+  "Outputs": {
+    "TableName": {
+      "Description": "The name of the DynamoDB table created by this template",
+      "Value": {
+        "Ref": "TableName"
+      },
+      "Export": {
+        "Name": "TableName"
+      }
+    },
+    "ProvisionedThroughput": {
+      "Description": "The provisioned read/write throughput of the table created by this template",
+      "Value": {
+        "Ref": "ProvisionedThroughput"
+      },
+      "Export": {
+        "Name": "ProvisionedThroughput"
+      }
+    }
+  },
+
+  "Resources": {
+    "UserTable": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "TableName": {
+          "Ref": "TableName"
+        },
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "id",
+            "AttributeType": "S"
+          }
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": "id",
+            "KeyType": "HASH"
+          }
+        ],
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": {
+            "Ref": "ProvisionedThroughput"
+          },
+          "WriteCapacityUnits": {
+            "Ref": "ProvisionedThroughput"
+          }
+        }
+      }
+    }
+  }
+}

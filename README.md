@@ -26,9 +26,50 @@ grunt.loadNpmTasks('grunt-aws-cloudformation');
 ### Overview
 
 This plugin contains a single task called `cloudformation`. It can be used to perform the following actions:
-* create-stack - Creates a new CloudFormation stack
-* update-stack - Updates a existing CloudFormation stack
-* stack-status - Displays the status of CloudFormation stack(s)
+* [create-stack](#using-the-create-stack-action) - Creates a new CloudFormation stack
+* [update-stack](#using-the-update-stack-action) - Updates an existing CloudFormation stack
+* [delete-stack](#using-the-delete-stack-action) - Deletes an existing CloudFormation stack
+* [describe-stack](#using-the-describe-stack-action) - Describes an existing CloudFormation stack's status
+
+
+
+### Example
+```javascript
+'use strict';
+module.exports = function(grunt) {
+
+  grunt.loadNpmTasks('grunt-aws-cloudformation');
+
+  grunt.initConfig({
+    cloudformation: {
+      options: {
+        region: 'us-west-2',
+        accessKeyId: "AAAAAAAAAAAAAAAAA",
+        secretAccessKey: "XxXxXxXxXxXxXxXxXxXxXxXxXx"
+      },
+      createMyStack: {
+        action: "create-stack",
+        stackName: "my-stack",
+        params: {
+          SomeParameter: "Foo"
+        },
+        deleteIfExists: true,
+        src: ['templates/MyStack.template']
+      },
+      deleteMyStack: {
+        action: "delete-stack",
+        stackName: "my-stack"
+      }
+    }
+  });
+
+  grunt.registerTask("default", ["cloudformation:createMyStack"]);
+};
+```
+In this example, you could use the command `grunt` (or `grunt cloudformation:createMyStack`) to create the stack,
+and the command `grunt cloudformation:deleteMyStack` would delete it.  For more examples, see the tests defined in
+this project's [Gruntfile.js](./blob/master/Gruntfile.js).
+
 
 ### Authentication options
 
@@ -60,6 +101,7 @@ Type: `String`
 The profile in the `~/.aws/credentials` saved credentials to use.
 
 
+
 ### Common options
 
 The following options are shared by all CloudFormation actions.
@@ -86,11 +128,30 @@ The name of the CloudFormation stack to be created.
 Type: `String`
 
 The body of the template to be used to create the stack. This can also be specified as a src file in standard Grunt format.
+You must specify either a templateBody (or src file) or templateUrl parameter
 
 ##### options.templateUrl
 Type: `String`
 
 The URL to the template (e.g. on AWS S3) to be used to create the stack.
+
+##### options.trackStatus
+Type: `Boolean`
+Default: `true`
+
+When true, the grunt task will track the progress of the create action until it completes or fails,
+displaying progress dots (or detailed information in `--verbose` mode). When false, the task
+simply initiates the create stack process, in which case the Grunt task will
+complete before the stack is created.
+
+##### options.outputKey
+Type: `String`
+
+If set, the grunt task will read all Output parameters after the creation of the stack, and append them to the
+outputKey in the Grunt config, where a subsequent task could pick them up if desired.  For example, if outputKey
+is set to `myTask.options`, and there is an Output of `foo`, then it's value would be set (via `grunt.config.set`)
+to the key `myTask.options.foo`. Note that *trackStatus* must also be set to true (its default), otherwise the
+Grunt task will not wait for the template to be created and therefore won't get the Outputs.
 
 ##### options.params
 Type: `Object`
@@ -101,67 +162,128 @@ An object specifying parameter values for the template.
 Type: `String array`
 
 A list of values that you must specify before AWS CloudFormation can update certain stacks. 
-Some stack templates might include resources that can affect permissions in your AWS account, for example, by creating new AWS Identity and Access Management (IAM) users. 
+Some stack templates might include resources that can affect permissions in your AWS account, for example, by creating
+new AWS Identity and Access Management (IAM) users. 
 For those stacks, you must explicitly acknowledge their capabilities by specifying this parameter.
 The only valid values are CAPABILITY_IAM and CAPABILITY_NAMED_IAM.
+
+#### Other create-stack options
+The following parameters can be specified and are treated exactly as in the documentation for the `createStack` function
+described in the [AWS CloudFormation SDK's createStack function](http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/CloudFormation.html#createStack-property)
+##### options.disableRollback
+##### options.onFailure
+##### options.notificationARNs
+##### options.resourceTypes
+##### options.roleARN
+##### options.stackPolicyBody
+##### options.stackPolicyURL
+##### options.tags
+##### options.timeoutInMinutes
+
 
 
 ### Using the `update-stack` action
 
-Use the `update-stack` action to update a existing CloudFormation stack.
+Use the `update-stack` action to update an existing CloudFormation stack. You must specify either a templateBody (or src file)
+or templateUrl parameter, or the usePreviousTemplate=true parameter.
 
 ##### options.stackName
 Type: `String`
 *Required*
 
-The name of the CloudFormation stack to be created.
+The name of the CloudFormation stack to be updated.
 
 ##### options.templateBody
 Type: `String`
 
-The body of the template to be used to create the stack. This can also be specified as a src file in standard Grunt format.
+The body of the template to be used to update the stack. This can also be specified as a src file in standard Grunt format.
 
 ##### options.templateUrl
 Type: `String`
 
-The URL to the template (e.g. on AWS S3) to be used to create the stack.
+The URL to the template (e.g. on AWS S3) to be used to update the stack.
+
+##### options.usePreviousTemplate
+Type: `Boolean`
+
+The body of the template to be used to create the stack. This can also be specified as a src file in standard Grunt format.
+
+##### options.trackStatus
+Type: `Boolean`
+Default: `true`
+
+When true, the grunt task will track the progress of the update action until it completes or fails,
+displaying progress dots (or detailed information in `--verbose` mode). When false, the task
+simply initiates the update stack process, in which case the Grunt task will complete before the stack is updated.
+
+##### options.outputKey
+Type: `String`
+
+If set, the grunt task will read all Output parameters after the update of the stack, and append them to the
+outputKey in the Grunt config, where a subsequent task could pick them up if desired.  For example, if outputKey
+is set to `myTask.options`, and there is an Output of `foo`, then it's value would be set (via `grunt.config.set`)
+to the key `myTask.options.foo`. Note that *trackStatus* must also be set to true (its default), otherwise the
+Grunt task will not wait for the template to be updated and therefore won't get the Outputs.
 
 ##### options.params
 Type: `Object`
 
-An object specifying parameter values for the template.
-String values passed as parameter value, true boolean passed as UsePreviousValue. 
+An object specifying parameter values for the template.  Pass a string value to specify a new value, or pass the boolean
+value `true` to use the previous value.
 
 ##### options.capabilities
 Type: `String array`
 
 A list of values that you must specify before AWS CloudFormation can update certain stacks. 
-Some stack templates might include resources that can affect permissions in your AWS account, for example, by creating new AWS Identity and Access Management (IAM) users. 
+Some stack templates might include resources that can affect permissions in your AWS account, for example, by creating
+new AWS Identity and Access Management (IAM) users. 
 For those stacks, you must explicitly acknowledge their capabilities by specifying this parameter.
 The only valid values are CAPABILITY_IAM and CAPABILITY_NAMED_IAM.
 
+#### Other update-stack options
+The following parameters can be specified and are treated exactly as in the documentation for the `updateStack` function
+described in the [AWS CloudFormation SDK's updateStack function](http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/CloudFormation.html#updateStack-property)
+##### options.notificationARNs
+##### options.resourceTypes
+##### options.roleARN
+##### options.stackPolicyBody
+##### options.stackPolicyURL
+##### options.tags
 
-### Using the `stack-status` action
-
-Use the `stack-status` action to get the current status information about your stack.
-Includes data like status message, last update time, parameters, output values etc.
-
-##### options.stackName
-Type: `String`
-
-The name of the CloudFormation stack to be created.
-
-##### options.nextToken
-Type: `String`
-
-A string that identifies the next page of stacks that you want to retrieve.
 
 
 ### Using the `delete-stack` action
 
-Use the `delete-stack` action to delete a stack and all associated resources.
+Use the `delete-stack` action to delete an existing CloudFormation stack.
+
+##### options.stackName
+Type: `String`
+*Required*
+
+The name of the CloudFormation stack to be deleted.
+
+##### options.trackStatus
+Type: `Boolean`
+Default: `true`
+
+When true, the grunt task will track the progress of the delete action until it completes or fails,
+displaying progress dots (or detailed information in `--verbose` mode). When false, the task
+simply initiates the delete stack process, in which case the Grunt task will complete before the stack is deleted.
+
+#### Other delete-stack options
+The following parameters can be specified and are treated exactly as in the documentation for the `deleteStack` function
+described in the [AWS CloudFormation SDK's deleteStack function](http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/CloudFormation.html#deleteStack-property)
+##### options.retainResources
+##### options.roleARN
+
+
+
+### Using the `describe-stack` action
+
+Use the `describe-stack` action to get the current status information about your stack and read Output values. Using
+the `--verbose` flag will also print out all underlying stack information.
 
 ##### options.stackName
 Type: `String`
 
-The name of the CloudFormation stack.
+The name of the CloudFormation stack to be described.
