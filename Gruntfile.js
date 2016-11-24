@@ -12,8 +12,7 @@ module.exports = function(grunt) {
 		},
 		cloudformation: {
 			options: {
-				region: 'us-west-2',
-				profile: "test"
+				region: 'us-west-2'
 			},
 			simpleCreate: {
 				action: "create-stack",
@@ -56,8 +55,7 @@ module.exports = function(grunt) {
 		},
 		validateThroughput: {
 			options: {
-				region: 'us-west-2',
-				profile: "test"
+				region: 'us-west-2'
 			},
 			simpleCreate: {
 				expectedThroughput: "7"
