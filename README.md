@@ -2,7 +2,7 @@
 
 [![NPM version](https://img.shields.io/npm/v/grunt-aws-cloudformation.svg)](https://www.npmjs.com/package/grunt-aws-cloudformation)
 [![Open Issues](https://img.shields.io/github/issues/andyneville/grunt-aws-cloudformation.svg)](https://github.com/andyneville/grunt-aws-cloudformation/issues)
-
+[![Build Status](https://img.shields.io/travis/andyneville/grunt-aws-cloudformation.svg)](https://travis-ci.org/andyneville/grunt-aws-cloudformation)
 
 > A grunt task to perform [AWS CloudFormation](http://aws.amazon.com/cloudformation/) operations.
 
