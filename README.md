@@ -112,6 +112,16 @@ Type: `String`
 
 The AWS region where the stack either already exists or will be created.
 
+##### options.action
+Type: `String`
+*Required*
+
+The action to perform, which must be one of:
+* create-stack
+* update-stack
+* delete-stack
+* describe-stack
+
 
 
 ### Using the `create-stack` action
