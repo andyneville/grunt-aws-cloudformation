@@ -11,6 +11,7 @@ const completeStatuses = [
 
 const failedStatuses = [
 	"CREATE_FAILED",
+	"ROLLBACK_COMPLETE",
 	"DELETE_FAILED",
 	"UPDATE_FAILED",
 	"UPDATE_ROLLBACK_COMPLETE"
@@ -392,14 +393,15 @@ CloudFormation.prototype.trackStatus = function(callback){
 		_.each(self.stackEvents, function(event){ eventMap[event.EventId] = true; });
 	}
 
+	var complete = false;
+	var failed = false;
+
 	function updateStatus(){
 		self.cloudformation.describeStackEvents({StackName: self.stackId}, function(err, data) {
 			if (err) {
 				self.grunt.verbose.error("Error tracking stack status: " + err);
 				return callback(err);
 			} else {
-				var complete = false;
-				var failed = false;
 				if (data.StackEvents && data.StackEvents.length > 0) {
 					var events = _.sortBy(data.StackEvents, function(event) {
 						return event.Timestamp.getTime();
@@ -416,6 +418,7 @@ CloudFormation.prototype.trackStatus = function(callback){
 						if (_.includes(failedStatuses, event.ResourceStatus)) {
 							if (firstError == null) {
 								firstError = message;
+								self.grunt.log.notverbose.error(message);
 							}
 							self.grunt.verbose.error(message);
 						} else {
@@ -425,7 +428,6 @@ CloudFormation.prototype.trackStatus = function(callback){
 						if (event.ResourceType == "AWS::CloudFormation::Stack") {
 							if (_.includes(completeStatuses, event.ResourceStatus)) {
 								complete = true;
-								failed = false;
 							} else if (_.includes(failedStatuses, event.ResourceStatus)) {
 								complete = true;
 								failed = true;
