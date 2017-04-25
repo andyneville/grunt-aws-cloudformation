@@ -154,6 +154,13 @@ displaying progress dots (or detailed information in `--verbose` mode). When fal
 simply initiates the create stack process, in which case the Grunt task will
 complete before the stack is created.
 
+##### options.trackPollingPeriod
+Type: `Number`
+Default: `1000`
+
+When trackStatus is true, this option defines the polling period (in ms) used to update the status from AWS.
+This defaults to 1000ms (1 second).
+
 ##### options.outputKey
 Type: `String`
 

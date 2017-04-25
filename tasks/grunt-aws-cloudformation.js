@@ -445,7 +445,7 @@ CloudFormation.prototype.trackStatus = function(callback){
 						callback();
 					}
 				} else {
-					setTimeout(updateStatus, 500);
+					setTimeout(updateStatus, self.options.trackPollingPeriod);
 				}
 			}
 		});
@@ -485,7 +485,8 @@ module.exports = function(grunt) {
 			accessKeyId: process.env.AWS_ACCESS_KEY_ID,
 			secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
 			sessionToken: process.env.AWS_SESSION_TOKEN,
-			trackStatus: true
+			trackStatus: true,
+			trackPollingPeriod: 1000
 		});
 
 		var data = _.defaults(this.data, options);
